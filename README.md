@@ -1,55 +1,68 @@
-Ringkasan
-Analisis ini mengecek apakah suhu harian di Bandung berbeda pada hari libur vs hari non-libur menggunakan data NASA POWER (temporal/daily/point) untuk tahun 2025 dengan parameter T2M, T2M_MAX, T2M_MIN. Nilai placeholder (mis. −999) dibersihkan, lalu setiap tanggal diberi label libur/non-libur berdasarkan SKB. Ada opsi “jendela libur (±1 hari)” untuk menangkap efek sebelum/sesudah libur. Ringkasan statistik dihitung secara global dan per bulan—mengikuti metode agregasi harian/temporal di dokumentasi POWER.
+# Analisis Pengaruh Hari Libur terhadap Suhu Harian Bandung (NASA POWER, 2025)
 
-Alur kerja (singkat)
-Ambil data dari NASA POWER untuk koordinat Bandung (−6.9147, 107.6098) → respons JSON deret waktu harian.
+> TL;DR — Membandingkan suhu harian **libur vs non-libur** di Bandung (2025) dari **NASA POWER**. Nilai placeholder dibersihkan, tanggal dilabeli berdasarkan **SKB**, tersedia opsi **jendela libur ±1 hari**, lalu dihitung ringkasan **global** dan **per bulan**.
 
-Bersihkan data: buang/NaN-kan nilai placeholder (mis. −999).
+---
 
-Label tanggal: tandai libur nasional dari daftar SKB; opsional aktifkan jendela libur ±1 hari.
+## Tabel Isi
+- [Ringkasan](#ringkasan)
+- [Dataset & Konfigurasi](#dataset--konfigurasi)
+- [Alur Kerja](#alur-kerja)
+- [Keluaran](#keluaran)
+- [Cara Pakai (Quickstart)](#cara-pakai-quickstart)
+- [Catatan untuk Screenshot Kode](#catatan-untuk-screenshot-kode)
+- [Struktur Proyek (opsional)](#struktur-proyek-opsional)
+- [Referensi (APA 7th)](#referensi-apa-7th)
+- [Lisensi](#lisensi)
 
-Pisahkan data: dua kategori — libur dan non-libur.
+---
 
-Agregasi & bandingkan:
+## Ringkasan
+Analisis ini mengecek apakah suhu harian di Bandung berbeda pada **hari libur** vs **hari non-libur** menggunakan data **NASA POWER** (endpoint `temporal/daily/point`) untuk tahun **2025** dengan parameter **T2M, T2M_MAX, T2M_MIN**. Nilai placeholder (mis. **−999**) dibersihkan, lalu setiap tanggal diberi label libur/non-libur berdasarkan **SKB**. Ada opsi **“jendela libur (±1 hari)”** untuk menangkap efek sebelum/sesudah libur. Ringkasan statistik dihitung secara **global** dan **per bulan**, konsisten dengan metode agregasi harian/temporal di dokumentasi POWER.
 
-Statistik global: mean & median per kategori.
+---
 
-Median per bulan: hanya untuk bulan yang punya data cukup pada keduanya (libur & non-libur).
+## Dataset & Konfigurasi
+- **Sumber data**: NASA POWER Daily API (`temporal/daily/point`)
+- **Koordinat**: Bandung **(−6.9147, 107.6098)**
+- **Tahun**: **2025**
+- **Parameter**: `T2M`, `T2M_MAX`, `T2M_MIN`
+- **Placeholder**: nilai seperti **−999** dibuang/di-NaN-kan
+- **Daftar libur**: **SKB** (format apa pun, asalkan bisa dipetakan ke tanggal)
+- **Opsi**: **jendela libur (±1 hari)** untuk menangkap efek sebelum/sesudah hari H
 
-Visualisasi (opsional): plot ringkasan untuk mempermudah perbandingan.
+---
 
-Keluaran utama
-Tabel ringkasan global (mean/median) untuk libur vs non-libur.
+## Alur Kerja
+1. **Ambil data** dari NASA POWER → respons JSON deret waktu harian untuk koordinat Bandung.  
+2. **Bersihkan data**: buang/NaN-kan nilai placeholder (mis. −999).  
+3. **Label tanggal**: tandai libur nasional dari daftar SKB; opsional aktifkan **jendela libur ±1 hari**.  
+4. **Pisahkan data** menjadi **libur** dan **non-libur**.  
+5. **Agregasi & bandingkan**:
+   - **Statistik global**: mean & median per kategori.
+   - **Median per bulan**: hanya untuk bulan yang punya data **cukup** pada **keduanya** (libur & non-libur).
+6. **Visualisasi (opsional)**: plot ringkasan untuk mempermudah perbandingan.
 
-Tabel median per bulan untuk kedua kategori (hanya bulan dengan data cukup).
+---
 
-Plot perbandingan (jika diaktifkan).
+## Keluaran
+- **Tabel ringkasan global** (mean/median) untuk libur vs non-libur  
+- **Tabel median per bulan** (hanya bulan dengan data cukup pada kedua kategori)  
+- **Plot** perbandingan (opsional)
 
-Kenapa seperti ini?
-Konsisten dengan agregasi harian/temporal di dokumentasi NASA POWER.
+---
 
-Jendela libur membantu menangkap efek arus sebelum/sesudah hari H, bukan hanya tepat di tanggal liburnya.
+## Cara Pakai (Quickstart)
 
-Konfigurasi minimal
-Sumber data: NASA POWER Daily API (endpoint temporal/daily/point).
+### 1) Persiapan
+```bash
+# (opsional) buat dan aktifkan virtualenv
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
 
-Koordinat: Bandung (−6.9147, 107.6098).
+python main.py
 
-Tahun: 2025.
-
-Parameter: T2M, T2M_MAX, T2M_MIN.
-
-Daftar libur: SKB (format bebas; yang penting bisa dipetakan ke tanggal).
-
-Opsi: aktif/nonaktif jendela libur (±1 hari).
-
-Catatan singkat untuk cuplikan kode
-Jika Anda menyertakan screenshot kode di README, tambahkan kalimat ini:
-“Bagian A memanggil API dan mem-parse JSON → DataFrame; bagian B membersihkan nilai dan memisahkan baris libur vs non-libur dengan boolean mask; bagian C menghitung ringkasan & membuat plot.”
-
-Replikasi cepat (contoh)
-Pastikan dependensi umum: Python 3.10+, pandas, requests, matplotlib (atau library plotting lain).
-
-Sediakan file/daftar SKB.
-
-Jalankan skrip utama untuk: fetch → clean → label → agregasi → (opsional) plot.
+# install dependensi minimum
+pip install pandas requests matplotlib python-dateutil
